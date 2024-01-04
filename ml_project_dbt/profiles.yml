@@ -1,0 +1,13 @@
+ml_project_dbt:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: elt-ai-system-postgres-1
+      user: airflow
+      password: airflow
+      port: 5432
+      dbname: laptops
+      schema: public
+      threads: 1
+      connect_timeout: 30

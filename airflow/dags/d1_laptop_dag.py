@@ -21,7 +21,7 @@ def laptop_el_dag():
     ingest = DockerOperator(image="laptop_ingest",
                        task_id="laptop_ingest_task",
                        container_name="laptop_ingest_task",
-                       auto_remove=False,
+                       auto_remove=True,
                        api_version='auto',
                         docker_url='unix://var/run/docker.sock',
                         network_mode='elt-ai-system_default',
@@ -34,7 +34,8 @@ def laptop_el_dag():
                           task_id="laptop_dbt_transform_task",
                         container_name="laptop_dbt_transform_task",
                         auto_remove=False,
-                        api_version='auto'
+                        api_version='auto',
+                        network_mode='elt-ai-system_default'
                        )
     
 
