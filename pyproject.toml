@@ -6,8 +6,9 @@ authors = ["tomaszbk-pc <zubik.tomas@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "3.11.6"
-apache-airflow = "^2.8.0"
+python = "^3.11, <3.12"
+apache-airflow = "2.7"
+dbt-postgres = "^1.7.4"
 
 
 [build-system]
