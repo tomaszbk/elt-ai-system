@@ -1,38 +1,48 @@
-import json
-
 import pendulum
 
-from airflow.decorators import dag, task
+from airflow.decorators import dag
 
 from datetime import datetime, timedelta
 from airflow.providers.docker.operators.docker import DockerOperator
-from airflow.operators import BashOperator
-from airflow.operators import DummyOperator
+from airflow.operators.dummy import DummyOperator
+from airflow.providers.postgres.operators.postgres import PostgresOperator
 
 
 @dag(
     schedule=None,
-    start_date=None,
+    start_date=pendulum.datetime(2021, 1, 1, tz="UTC"),
     catchup=False,
     tags=["example"],
 )
 def laptop_el_dag():
 
-    @task()
-    def ingest():
-        data_string = '{"1001": 301.27, "1002": 433.21, "1003": 502.22}'
-        BashOperator
-        order_data_dict = json.loads(data_string)
-        DockerOperator
-        return order_data_dict
+    start = DummyOperator(task_id="start")
+
+    ingest = DockerOperator(image="laptop_ingest",
+                       task_id="laptop_ingest_task",
+                       container_name="laptop_ingest_task",
+                       auto_remove=False,
+                       api_version='auto',
+                        docker_url='unix://var/run/docker.sock',
+                        network_mode='elt-ai-system_default',
+                        
+                       )
 
 
-    @task()
-    def transform(total_order_value: float):
-        print(f"Total order value is: {total_order_value:.2f}")
+
+    transform = DockerOperator(image="laptop_dbt_transform",
+                          task_id="laptop_dbt_transform_task",
+                        container_name="laptop_dbt_transform_task",
+                        auto_remove=False,
+                        api_version='auto'
+                       )
+    
+
+    finish = DummyOperator(task_id="finish")
 
 
-    ingest_laptop_data = ingest()
-    transform_laptop_data = transform(ingest_laptop_data)
+
+    start >> ingest >> transform >> finish
+
 
 laptop_el_dag()

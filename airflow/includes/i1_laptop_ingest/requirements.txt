@@ -16,3 +16,5 @@ tqdm==4.66.1
 tzdata==2023.4
 urllib3==2.1.0
 webencodings==0.5.1
+sqlalchemy
+psycopg2
