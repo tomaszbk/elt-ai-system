@@ -9,6 +9,8 @@ readme = "README.md"
 python = "^3.11, <3.12"
 apache-airflow = "2.7"
 dbt-postgres = "^1.7.4"
+apache-airflow-providers-docker = "^3.9.1"
+apache-airflow-providers-postgres = "^5.10.0"
 
 
 [build-system]
