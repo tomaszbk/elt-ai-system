@@ -14,19 +14,19 @@ class TypeOfLaptopDropper(BaseEstimator, TransformerMixin):
     
 
 class ValueMapper(BaseEstimator, TransformerMixin):
-    def map_resolution(value: str):
+    def map_resolution(self, value: str):
         value = value.upper()
         if '4K' in value:
             return 2
         return 1
 
-    def map_os(value: str):
+    def map_os(self, value: str):
         value = value.upper().split(' ')[0]
         if value == 'NO':
             return None
         return value
 
-    def map_gpu(value: str):
+    def map_gpu(self, value: str):
         value = value.upper()
         if 'NVIDIA' in value:
             return 'NVIDIA'
@@ -35,7 +35,7 @@ class ValueMapper(BaseEstimator, TransformerMixin):
         elif 'AMD' in value:
             return 'AMD'
 
-    def map_memory(value: str):
+    def map_memory(self, value: str):
         value = value.upper()
         if 'SSD' in value:
             disk_type = 'SSD'
@@ -75,13 +75,13 @@ class CustomOneHotEncoder(BaseEstimator, TransformerMixin):
         return self
     
     def transform(self, X):
-        return pd.get_dummies(X, columns=['company_name', 'ram', 'os', 'gpu', 'cpu'], prefix = ['laptop_brand', 'ram', 'os', 'gpu', 'cpu']).head()
+        return pd.get_dummies(X, columns=['company_name', 'ram', 'os', 'gpu', 'cpu'], prefix = ['laptop_brand', 'ram', 'os', 'gpu', 'cpu'])
 
 
 data_transform_pipeline = Pipeline([
-     'drop_type_of_laptop_column', TypeOfLaptopDropper(),
-     'map_values', ValueMapper(),
-    'drop_memory_column', MemoryDropper(),
-    'one_hot_encoding', CustomOneHotEncoder(),
-    'standardize', StandardScaler()
+     ('drop_type_of_laptop_column', TypeOfLaptopDropper()),
+     ('map_values', ValueMapper()),
+    ('drop_memory_column', MemoryDropper()),
+    ('one_hot_encoding', CustomOneHotEncoder()),
+    ('standardize', StandardScaler())
 ])

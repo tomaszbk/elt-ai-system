@@ -1,12 +1,12 @@
 import pandas as pd
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+
+from data_pipeline import data_transform_pipeline
 
 
 laptops_data_df = pd.read_sql("select * from laptop_dim", "postgresql://airflow:airflow@elt-ai-system-postgres-1:5432/laptops")
@@ -15,26 +15,27 @@ laptops_data_df = pd.read_sql("select * from laptop_dim", "postgresql://airflow:
 X = laptops_data_df.drop(['price'], axis=1)
 y = laptops_data_df['price']
 
+print(f"size before transformation: {X.shape}")
+X = data_transform_pipeline.fit_transform(X)
+print(f"size after transformation: {X.shape}")
+
 # train-test split for model evaluation
-X_train_raw, X_test_raw, y_train, y_test = train_test_split(X, y, train_size=0.7, shuffle=True)
+X_train, X_test, y_train, y_test = train_test_split(X, y, train_size=0.7, shuffle=True)
  
-# Standardizing data
-scaler = StandardScaler()
-scaler.fit(X_train_raw)
-X_train = scaler.transform(X_train_raw)
-X_test = scaler.transform(X_test_raw)
- 
-# Convert to 2D PyTorch tensors
 X_train = torch.tensor(X_train, dtype=torch.float32)
-y_train = torch.tensor(y_train, dtype=torch.float32).reshape(-1, 1)
 X_test = torch.tensor(X_test, dtype=torch.float32)
-y_test = torch.tensor(y_test, dtype=torch.float32).reshape(-1, 1)
+
+# Convert target variables, and reshape them if necessary
+y_train = torch.tensor(y_train.to_numpy(dtype=np.float64), dtype=torch.float32).reshape(-1, 1)
+y_test = torch.tensor(y_test.to_numpy(dtype=np.float64), dtype=torch.float32).reshape(-1, 1)
  
 # Define the model
 model = nn.Sequential(
-    nn.Linear(8, 24),
+    nn.Linear(26, 52),
     nn.ReLU(),
-    nn.Linear(24, 12),
+    nn.Linear(52, 34),
+    nn.ReLU(),
+    nn.Linear(34, 12),
     nn.ReLU(),
     nn.Linear(12, 6),
     nn.ReLU(),
@@ -69,3 +70,5 @@ with torch.no_grad():
   y_test_prediction=model(X_test)
   test_loss = loss_fn(y_test_prediction.squeeze(),y_test)
   print(f'Test loss value : {test_loss.item():.4f}')
+
+torch.save(model, '/ml_model/model.pt')
