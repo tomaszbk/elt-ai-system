@@ -51,7 +51,7 @@ x-airflow-common:
     # WARNING: Use _PIP_ADDITIONAL_REQUIREMENTS option ONLY for a quick checks
     # for other purpose (development, test and especially production usage) build/extend Airflow image.
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
-    AIRFLOW_CONN_POSTGRES_DB: postgresql://airflow:airflow@elt-ai-system-postgres-1:5432/laptops
+    AIRFLOW_CONN_POSTGRES_DB: postgresql://airflow:airflow@elt-ai-system-postgres-1:5432
   volumes:
     - ${AIRFLOW_PROJ_DIR}/dags:/opt/airflow/dags
     - ${AIRFLOW_PROJ_DIR}/logs:/opt/airflow/logs
@@ -239,6 +239,15 @@ services:
       - bash
       - -c
       - airflow
+
+  python-notebooks:
+    image: python:3.11.6
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./notebooks:/notebooks
+    working_dir: /notebooks
+    command: bash -c "pip install -r requirements.txt && tail -F anything"
 
 
 volumes:

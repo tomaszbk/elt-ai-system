@@ -2,7 +2,6 @@ import pendulum
 
 from airflow.decorators import dag
 
-from datetime import datetime, timedelta
 from airflow.providers.docker.operators.docker import DockerOperator
 from airflow.operators.dummy import DummyOperator
 from airflow.providers.postgres.operators.postgres import PostgresOperator
@@ -17,6 +16,16 @@ from airflow.providers.postgres.operators.postgres import PostgresOperator
 def laptop_el_dag():
 
     start = DummyOperator(task_id="start")
+
+    create_laptops_database = PostgresOperator(
+        task_id="create_laptops_database",
+        postgres_conn_id="postgres_db",
+        sql=["""
+        drop database if exists laptops;
+        """,
+        "create database laptops;"],
+        autocommit=True
+    )
 
     ingest = DockerOperator(image="laptop_ingest",
                        task_id="laptop_ingest_task",
@@ -33,7 +42,7 @@ def laptop_el_dag():
     transform = DockerOperator(image="laptop_dbt_transform",
                           task_id="laptop_dbt_transform_task",
                         container_name="laptop_dbt_transform_task",
-                        auto_remove=False,
+                        auto_remove=True,
                         api_version='auto',
                         network_mode='elt-ai-system_default'
                        )
@@ -43,7 +52,7 @@ def laptop_el_dag():
 
 
 
-    start >> ingest >> transform >> finish
+    start >> create_laptops_database >> ingest >> transform >> finish
 
 
 laptop_el_dag()

@@ -11,7 +11,14 @@ apache-airflow = "2.7"
 dbt-postgres = "^1.7.4"
 apache-airflow-providers-docker = "^3.9.1"
 apache-airflow-providers-postgres = "^5.10.0"
+torch = "^2.1.2"
+numpy = "^1.26.3"
+pandas = "^2.1.4"
+matplotlib = "^3.8.2"
 
+
+[tool.poetry.group.dev.dependencies]
+ipykernel = "^6.28.0"
 
 [build-system]
 requires = ["poetry-core"]
